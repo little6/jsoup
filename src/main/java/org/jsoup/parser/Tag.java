@@ -259,6 +259,7 @@ public class Tag implements Cloneable {
 
     // internal static initialisers:
     // prepped from http://www.w3.org/TR/REC-html40/sgml/dtd.html and other sources
+    // block tags，需要换行
     private static final String[] blockTags = {
             "html", "head", "body", "frameset", "script", "noscript", "style", "meta", "link", "title", "frame",
             "noframes", "section", "nav", "aside", "hgroup", "header", "footer", "p", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -268,6 +269,7 @@ public class Tag implements Cloneable {
             "svg", "math", "center", "template",
             "dir", "applet", "marquee", "listing" // deprecated but still known / special handling
     };
+    // inline tags，无需换行
     private static final String[] inlineTags = {
             "object", "base", "font", "tt", "i", "b", "u", "big", "small", "em", "strong", "dfn", "code", "samp", "kbd",
             "var", "cite", "abbr", "time", "acronym", "mark", "ruby", "rt", "rp", "rtc", "a", "img", "br", "wbr", "map", "q",
@@ -279,6 +281,7 @@ public class Tag implements Cloneable {
             "text", // in SVG NS
             "mi", "mo", "msup", "mn", "mtext" // in MathML NS, to ensure inline
     };
+    //emptyTags是不能有内容的标签，这类标签都是可以自闭合的
     private static final String[] emptyTags = {
             "meta", "link", "base", "frame", "img", "br", "wbr", "embed", "hr", "input", "keygen", "col", "command",
             "device", "area", "basefont", "bgsound", "menuitem", "param", "source", "track"
@@ -288,6 +291,8 @@ public class Tag implements Cloneable {
             "title", "a", "p", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "address", "li", "th", "td", "script", "style",
             "ins", "del", "s"
     };
+
+    // 在这些标签里，需要保留空格
     private static final String[] preserveWhitespaceTags = {
             "pre", "plaintext", "title", "textarea"
             // script is not here as it is a data node, which always preserve whitespace

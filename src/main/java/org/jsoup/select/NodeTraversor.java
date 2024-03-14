@@ -12,6 +12,13 @@ import org.jsoup.select.NodeFilter.FilterResult;
  <p> During traversal, structural changes to nodes are supported (e.g. {{@link Node#replaceWith(Node)},
  {@link Node#remove()}}
  </p>
+
+ 一个深度优先的节点遍历器。用于按文档顺序遍历包括指定根节点在内的所有节点。
+
+ 每个节点都会调用 {@link NodeVisitor#head(Node, int)} 和 {@link NodeVisitor#tail(Node, int)} 方法。
+
+ 在遍历过程中，支持对节点进行结构性的更改（例如，{@link Node#replaceWith(Node)}）
+
  */
 public class NodeTraversor {
     /**
@@ -31,24 +38,26 @@ public class NodeTraversor {
             int origSize = parent != null ? parent.childNodeSize() : 0;
             Node next = node.nextSibling();
 
-            visitor.head(node, depth); // visit current node
+            visitor.head(node, depth); // visit current node  调用 visitor 的 head 方法处理当前节点
             if (parent != null && !node.hasParent()) { // removed or replaced
-                if (origSize == parent.childNodeSize()) { // replaced
+                // 如果当前节点被移除或替换，会根据父节点的子节点数量是否发生变化来判断是被移除还是被替换。
+                if (origSize == parent.childNodeSize()) { // replaced  如果被替换，会用新的节点替换当前节点；
                     node = parent.childNode(node.siblingIndex()); // replace ditches parent but keeps sibling index
-                } else { // removed
+                } else { // removed  如果被移除，会将 node 指向下一个兄弟节点，
                     node = next;
-                    if (node == null) { // last one, go up
+                    if (node == null) { // last one, go up  如果没有下一个兄弟节点，就向上回溯。
                         node = parent;
                         depth--;
                     }
-                    continue; // don't tail removed
+                    continue; // don't tail removed   不要访问当前被移除节点的tail方法
                 }
             }
 
-            if (node.childNodeSize() > 0) { // descend
+            if (node.childNodeSize() > 0) { // descend 如果当前节点有子节点，会将 node 指向第一个子节点，并增加深度
                 node = node.childNode(0);
                 depth++;
             } else {
+                // 如果当前节点没有子节点，会向上回溯，直到找到有兄弟节点的节点或回溯到根节点。在回溯的过程中，会调用 visitor 的 tail 方法处理节点，并减小深度。
                 while (true) {
                     assert node != null; // as depth > 0, will have parent
                     if (!(node.nextSibling() == null && depth > 0)) break;
@@ -56,10 +65,10 @@ public class NodeTraversor {
                     node = node.parentNode();
                     depth--;
                 }
-                visitor.tail(node, depth);
-                if (node == root)
+                visitor.tail(node, depth); // 调用 visitor 的 tail 方法处理当前节点
+                if (node == root) // 如果 node 指向的是根节点，就会结束循环；
                     break;
-                node = node.nextSibling();
+                node = node.nextSibling(); // 否则，将 node 指向下一个兄弟节点，继续循环。
             }
         }
     }
